@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/providers/cart.dart';
+import 'package:flutter_complete_guide/providers/cart.dart' show Cart;
+import 'package:flutter_complete_guide/widgets/cart_item.dart';
 import 'package:provider/provider.dart';
 
 class CartScreen extends StatelessWidget {
@@ -9,7 +10,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text("Uour cart")),
+      appBar: AppBar(title: const Text("Your cart")),
       body: Column(
         children: [
           Card(
@@ -17,22 +18,41 @@ class CartScreen extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(8),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     "Total",
                     style: TextStyle(fontSize: 20),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  Spacer(),
                   Chip(
-                    label: Text('\$${cart.totalAmount}'),
+                    label: Text(
+                      '\$${cart.totalAmount}',
+                      style: TextStyle(
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .titleLarge
+                              .color),
+                    ),
                     backgroundColor: Theme.of(context).primaryColor,
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text("ORDER NOW"),
                   )
                 ],
               ),
             ),
-          )
+          ),
+          SizedBox(height: 10),
+          Expanded(
+              child: ListView.builder(
+                  itemCount: cart.items.length,
+                  itemBuilder: ((context, index) => CartItem(
+                      cart.items.values.toList()[index].id,
+                      cart.items.values.toList()[index].price,
+                      cart.items.values.toList()[index].quantity,
+                      cart.items.values.toList()[index].title))))
         ],
       ),
     );
