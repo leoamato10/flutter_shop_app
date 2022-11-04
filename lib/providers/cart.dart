@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class CartItem {
   final String id;
@@ -8,9 +8,9 @@ class CartItem {
 
   CartItem({
     @required this.id,
-    @required this.price,
-    @required this.quantity,
     @required this.title,
+    @required this.quantity,
+    @required this.price,
   });
 }
 
@@ -22,7 +22,7 @@ class Cart with ChangeNotifier {
   }
 
   int get itemCount {
-    return _items == null ? 0 : _items.length;
+    return _items.length;
   }
 
   double get totalAmount {
@@ -33,29 +33,57 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void addItem(String productId, double price, String title) {
+  void addItem(
+    String productId,
+    double price,
+    String title,
+  ) {
     if (_items.containsKey(productId)) {
+      // change quantity...
       _items.update(
-          productId,
-          (prevItem) => CartItem(
-              id: prevItem.id,
-              price: prevItem.price,
-              quantity: prevItem.quantity + 1,
-              title: prevItem.title));
+        productId,
+        (existingCartItem) => CartItem(
+              id: existingCartItem.id,
+              title: existingCartItem.title,
+              price: existingCartItem.price,
+              quantity: existingCartItem.quantity + 1,
+            ),
+      );
     } else {
       _items.putIfAbsent(
-          productId,
-          () => CartItem(
+        productId,
+        () => CartItem(
               id: DateTime.now().toString(),
               title: title,
               price: price,
-              quantity: 1));
+              quantity: 1,
+            ),
+      );
     }
     notifyListeners();
   }
 
   void removeItem(String productId) {
     _items.remove(productId);
+    notifyListeners();
+  }
+
+  void removeSingleItem(String productId) {
+    if (!_items.containsKey(productId)) {
+      return;
+    }
+    if (_items[productId].quantity > 1) {
+      _items.update(
+          productId,
+          (existingCartItem) => CartItem(
+                id: existingCartItem.id,
+                title: existingCartItem.title,
+                price: existingCartItem.price,
+                quantity: existingCartItem.quantity - 1,
+              ));
+    } else {
+      _items.remove(productId);
+    }
     notifyListeners();
   }
 
